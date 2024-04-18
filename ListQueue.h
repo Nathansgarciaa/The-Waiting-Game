@@ -9,6 +9,11 @@ private:
     DblList<T> list;
 
 public:
+    ListQueue() : list() { 
+        // Constructor body, if needed.
+        // The initialization list 'list()' calls the default constructor of DblList.
+    }
+
     void enqueue(T d) {
         list.insertFront(d);
     }

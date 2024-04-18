@@ -1,13 +1,18 @@
 
 #include <iostream>
+#include "Customer.h"
+#include <string>
+#include <iostream>
 
 class Window {
 private:
     bool occupied;   // Indicates whether the window is currently occupied
-     Customer* currentCustomer;  // Customer currently at the window
+    Customer* currentCustomer;  // Customer currently at the window
+    int idleTime;
+    int occupiedTime; // Missing semicolon here
 public:
     // Constructor
-    Window() : occupied(false) {} // Initially, the window is not occupied
+    Window() : occupied(false), currentCustomer(nullptr), idleTime(0), occupiedTime(0) {} // Initially, the window is not occupied
    
     // Function to occupy the window
     void occupy() {
@@ -18,6 +23,32 @@ public:
             std::cout << "Window is already occupied." << std::endl;
         }
     }
+    
+    void processTime() {
+        if (occupied && currentCustomer != nullptr) {
+            // Decrease the time the customer needs at this window
+            if(currentCustomer->getCashierTime() <= 0){
+                free();
+            }
+            if(currentCustomer->getRegisterTime() <= 0){
+                free();
+            }
+            if(currentCustomer->getFinancialAidTime() <= 0){
+                free();
+            }
+        }
+        if(isOccupied()){
+            occupiedTime += 1;
+            idleTime = 0;
+            std::cout << occupiedTime << std::endl;
+        }
+        if(!isOccupied()){
+            idleTime += 1;
+            occupiedTime = 0;
+            std::cout << idleTime << std::endl;
+            
+        }
+    }
     void setCustomer(Customer* customer) {
         occupied = true;
         currentCustomer = customer;
@@ -25,9 +56,6 @@ public:
     }
     Customer* getCurrentCustomer() {
         return currentCustomer;
-    }
-    bool isCustomerDone() const {
-        return currentCustomer == nullptr || currentCustomer->isDone();  // Assuming Customer has a method 'isDone' to check completion
     }
 
     // Function to free the window
