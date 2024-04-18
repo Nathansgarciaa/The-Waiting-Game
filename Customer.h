@@ -30,7 +30,7 @@ private:
     int time;
     char order[3];
     char currentOffice;
-    int officeIndex = 0;
+    int officeIndex;
     bool atOffice;
 };
 

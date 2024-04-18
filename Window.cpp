@@ -9,6 +9,7 @@
 #include "ListQueue.h"
 #include <string>
 
+
 class Window {
 private:
     bool occupied;   // Indicates whether the window is currently occupied
