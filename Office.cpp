@@ -1,6 +1,5 @@
 #include <iostream>
 #include "Window.cpp"
-
 #include "ListQueue.h"  // Include your ListQueue implementation here
 
 class Office {
@@ -9,10 +8,13 @@ public:
     Window* windows;
     int numWindows;
     ListQueue<Customer*> queue;
-    int totalCustomers;
+    int totalCustomers = 0; // Ensure it's initialized
+    int StudentWaitTime = 0; // Ensure it's initialized
+    int maxWaitTime = 0;
 
     Office(int numberOfWindows, std::string name) : numWindows(numberOfWindows), officeName(name) {
         windows = new Window[numWindows];
+        std::cout << "Office created: " << officeName << " with " << numWindows << " windows." << std::endl;
     }
 
     ~Office() {
@@ -22,7 +24,7 @@ public:
     void addCustomer(Customer* customer) {
         queue.enqueue(customer);
         totalCustomers++;
-        nextInLine();
+        std::cout << "Customer added to " << officeName << ". Total now: " << totalCustomers << std::endl;
     }
 
     void nextInLine() {
@@ -30,15 +32,15 @@ public:
             if (!windows[i].isOccupied() && !queue.isEmpty()) {
                 Customer* customer = queue.dequeue();
                 windows[i].setCustomer(customer);
+                customer->SetWindowTrue();
+                std::cout << "Customer moved to window in " << officeName << std::endl;
             }
-            windows[i].processTime();
+            windows[i].checkTime();
         }
     }
 
-    
-    
-
-    
-    // Function to retrieve total wait time
-   
+    double meanWaitTime(){
+        if (totalCustomers == 0) return 0; // Prevent division by zero
+        return static_cast<double>(StudentWaitTime) / totalCustomers;
+    }
 };

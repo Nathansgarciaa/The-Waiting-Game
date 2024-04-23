@@ -3,7 +3,7 @@
 #include "ListQueue.h"
 #include <fstream>
 #include <string>
-#include<sstream>
+#include <sstream>
 #include <iostream>
 #include <algorithm> // for std::max
 using namespace std;
@@ -15,30 +15,11 @@ private:
     Office* financialAid;
     ListQueue<Customer*>* scc;
 
-    // Variables to store metrics
-    int totalWaitTimeRegistrar;
-    int totalWaitTimeCashier;
-    int totalWaitTimeFinancialAid;
-    int longestWaitTimeRegistrar;
-    int longestWaitTimeCashier;
-    int longestWaitTimeFinancialAid;
-    int studentsWaitingOver10Minutes;
-    int totalIdleTimeRegistrar;
-    int totalIdleTimeCashier;
-    int totalIdleTimeFinancialAid;
-    int longestIdleTimeRegistrar;
-    int longestIdleTimeCashier;
-    int longestIdleTimeFinancialAid;
-    int windowsIdleOver5Minutes;
-
 public:
-    ServiceCenter() : registrar(nullptr), cashier(nullptr), financialAid(nullptr), scc(new ListQueue<Customer*>()), 
-        totalWaitTimeRegistrar(0), totalWaitTimeCashier(0), totalWaitTimeFinancialAid(0), 
-        longestWaitTimeRegistrar(0), longestWaitTimeCashier(0), longestWaitTimeFinancialAid(0), 
-        studentsWaitingOver10Minutes(0), totalIdleTimeRegistrar(0), totalIdleTimeCashier(0), totalIdleTimeFinancialAid(0),
-        longestIdleTimeRegistrar(0), longestIdleTimeCashier(0), longestIdleTimeFinancialAid(0), 
-        windowsIdleOver5Minutes(0) {}
+    // Constructor initialization list syntax corrected with proper initialization.
+    ServiceCenter() : registrar(nullptr), cashier(nullptr), financialAid(nullptr), scc(new ListQueue<Customer*>()) {}
 
+    // Destructor with proper deletion of members.
     ~ServiceCenter() {
         delete registrar;
         delete cashier;
@@ -46,44 +27,69 @@ public:
         delete scc; // Ensure deletion of the queue as well
     }
 
-    // Function to process customers and calculate metrics
+    // Function to process customers and calculate metrics.
     void processCustomers() {
         while (!scc->isEmpty()) {
             Customer* customer = scc->dequeue();
-            customer->nextTime(); // Properly increment time
-
             char direction = customer->getCurrentOffice();
-            if (customer->officeStatus() == false) {
-                if (direction == 'R') {
-                    registrar->addCustomer(customer);
-                } else if (direction == 'C') {
-                    cashier->addCustomer(customer);
-                } else if (direction == 'F') {
-                    financialAid->addCustomer(customer);
+            if (!customer->officeStatus()) {  // use ! for boolean checks
+                switch (direction) {  // using switch-case for clarity
+                    case 'R':
+                        registrar->addCustomer(customer);
+                        break;
+                    case 'C':
+                        cashier->addCustomer(customer);
+                        break;
+                    case 'F':
+                        financialAid->addCustomer(customer);
+                        break;
                 }
             }
 
-            if (customer->getTime() == customer->getCashierTime() || customer->getTime() == customer->getRegisterTime() || customer->getTime() == customer->getFinancialAidTime()) {
-                if (customer->getCurrentOffice() == 'R') {
-                    customer->setRegisterTime(0);
-                    customer->setTime(0);
-                } else if (customer->getCurrentOffice() == 'C') {
-                    customer->setCashierTime(0);
-                    customer->setTime(0);
-                } else if (customer->getCurrentOffice() == 'F') {
-                    customer->setFinancialAidTime(0);
-                    customer->setTime(0);
+            if (customer->officeStatus()) {
+                if (!customer->windowStatus()) {
+                    customer->waitTime++;
                 }
+                switch (direction) {
+                    case 'R':
+                        if (customer->waitTime > registrar->maxWaitTime) {
+                            registrar->maxWaitTime = customer->waitTime;
+                        }
+                        registrar->nextInLine();
+                        break;
+                    case 'C':
+                        if (customer->waitTime > cashier->maxWaitTime) {
+                            cashier->maxWaitTime = customer->waitTime;
+                        }
+                        customer->waitTime++;
+                        cashier->nextInLine();
+                        break;
+                    case 'F':
+                        if (customer->waitTime > financialAid->maxWaitTime) {
+                            financialAid->maxWaitTime = customer->waitTime;
+                        }
+                        customer->waitTime++;
+                        financialAid->nextInLine();
+                        break;
+                }
+            }
+        
+            if (customer->getWindowTime() == customer->getCashierTime() || customer->getWindowTime() == customer->getRegisterTime() || customer->getWindowTime() == customer->getFinancialAidTime()) {
+                int& studentWaitTime = direction == 'R' ? registrar->StudentWaitTime :
+                                      direction == 'C' ? cashier->StudentWaitTime : financialAid->StudentWaitTime;
+                studentWaitTime += customer->waitTime;
+                customer->setWindowTime(0);
+                customer->waitTime = 0;
                 customer->nextOffice();
             }
         }
     }
 
-    // Function to process the input file and calculate metrics
-    void processFile(const std::string& filename) {
-        std::ifstream file(filename);
+    // Function to process the input file and simulate the service process.
+    void processFile(const string& filename) {
+        ifstream file(filename);
         if (!file) {
-            std::cerr << "Cannot open file: " << filename << std::endl;
+            cerr << "Cannot open file: " << filename << endl;
             return;
         }
         int numRegWindows, numCashWindows, numFinAidWindows;
@@ -93,29 +99,35 @@ public:
         cashier = new Office(numCashWindows, "Cashier");
         financialAid = new Office(numFinAidWindows, "Financial Aid");
 
-        std::string line;
+        ListQueue<Customer*> arrivals[101];  // Assuming ticks are from 0 to 100
+        string line;
         int tick = 0;
-        while (std::getline(file, line)) {
-            std::istringstream iss(line);
-            if (line.length() == 1) {  // Check if the line contains only one character
-                tick = std::stoi(line);
-                processCustomers(); // Process customers at the beginning of each minute
+        while (getline(file, line)) {
+            if (line.length() == 1) {  // Check if the line is a tick
+                tick = stoi(line);  // Update the current tick
                 continue;
             }
+            istringstream iss(line);
             int regTime, cashTime, finAidTime;
             char order[3];
             iss >> regTime >> cashTime >> finAidTime >> order[0] >> order[1] >> order[2];
-            // Assuming tick is the time of entry
-            Customer* customer = new Customer(regTime, cashTime, finAidTime, order[0], order[1], order[2]);
-            scc->enqueue(customer);
+            if (tick >= 0 && tick <= 100) {
+                Customer* customer = new Customer(regTime, cashTime, finAidTime, order[0], order[1], order[2]);
+                arrivals[tick].enqueue(customer);
+            }
+        }
+
+        // Process customers at each tick
+        for (int currentTick = 0; currentTick <= 100; ++currentTick) {
+            while (!arrivals[currentTick].isEmpty()) {
+                scc->enqueue(arrivals[currentTick].dequeue());
+            }
             processCustomers();
         }
 
-        // Process any remaining customers after reading all lines
-       
-
-        file.close();
-
-       
+        // Output mean wait times after simulation
+        cout << "Registrar Mean Wait Time: " << registrar->meanWaitTime() << endl;
+        cout << "Cashier Mean Wait Time: " << cashier->meanWaitTime() << endl;
+        cout << "Financial Aid Mean Wait Time: " << financialAid->meanWaitTime() << endl;
     }
 };

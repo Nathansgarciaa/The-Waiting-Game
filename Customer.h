@@ -8,6 +8,8 @@ public:
     int getRegisterTime() const;
     int getCashierTime() const;
     int getFinancialAidTime() const;
+    int waitTime;
+    
 
     void setRegisterTime(int time);
     void setCashierTime(int time);
@@ -16,22 +18,27 @@ public:
     int getArrivalTime() const;
     char getCurrentOffice() const; // Changed to const
     void nextOffice(); // Changed to camel case
-    int getTime() const; // Changed to const
+    int getWindowTime() const; // Changed to const
     void nextTime();
-    void setTime(int i);
+    void setWindowTime(int i);
     void inOffice(); // Removed colon
     void notAtOffice();
     bool officeStatus() const; // Changed to const
+    bool windowStatus();
+    void SetWindowTrue();
+    void SetWindowFalse();
+    
 
 private:
     int registerTime;
     int cashierTime;
     int financialAidTime;
-    int time;
+    int windowTime;
     char order[3];
     char currentOffice;
     int officeIndex;
     bool atOffice;
+    bool window;
 };
 
 #endif // CUSTOMER_H

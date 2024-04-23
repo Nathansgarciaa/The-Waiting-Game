@@ -1,24 +1,17 @@
-
-#include <iostream>
-#include "Customer.h"
-#include <string>
-#include <iostream>
-
 #include <iostream>
 #include "Customer.h"
 #include "ListQueue.h"
 #include <string>
 
-
 class Window {
 private:
-    bool occupied;   // Indicates whether the window is currently occupied
-    Customer* currentCustomer;  // Customer currently at the window
-    int idleTime;
-    int occupiedTime;
+    bool occupied = false;
+    Customer* currentCustomer = nullptr;
+    int idleTime = 0;
+    int occupiedTime = 0;
 
 public:
-    Window() : occupied(false), currentCustomer(nullptr), idleTime(0), occupiedTime(0) {}
+    Window() {}
 
     void occupy() {
         if (!occupied) {
@@ -29,7 +22,7 @@ public:
         }
     }
 
-    void processTime() {
+    void checkTime() {
         if (occupied && currentCustomer != nullptr) {
             if (currentCustomer->getCashierTime() <= 0) {
                 free();
@@ -44,49 +37,31 @@ public:
         if (isOccupied()) {
             occupiedTime += 1;
             idleTime = 0;
-            std::cout << occupiedTime << std::endl;
-        }
-        if (!isOccupied()) {
+            std::cout << "Window occupied time: " << occupiedTime << " at window." << std::endl;
+        } else {
             idleTime += 1;
             occupiedTime = 0;
-            std::cout << idleTime << std::endl;
+            std::cout << "Window idle time: " << idleTime << " at window." << std::endl;
         }
     }
 
     void setCustomer(Customer* customer) {
         occupy();
         currentCustomer = customer;
-        std::cout << "Customer set at window." << std::endl;
+        std::cout << "Customer set at window: Processing time starts." << std::endl;
     }
 
     void free() {
         if (occupied) {
             occupied = false;
+            currentCustomer = nullptr; // Important to clear customer
             std::cout << "Window is now free." << std::endl;
         } else {
-            std::cout << "Window is already free." << std::endl;
+            std::cout << "Window was already free." << std::endl;
         }
     }
 
     bool isOccupied() const {
         return occupied;
     }
-
-    int getIdleTime() const {
-        return idleTime;
-    }
-        int customersWaitingOver10Minutes() {
-        int count = 0;
-        if (currentCustomer != nullptr) {
-            if (currentCustomer->getRegisterTime() > 10 || currentCustomer->getCashierTime() > 10 || currentCustomer->getFinancialAidTime() > 10) {
-                count++;
-            }
-        }
-        return count;
-    }
-
-    bool idleOver5Minutes() {
-        return idleTime > 5;
-    }
-
 };

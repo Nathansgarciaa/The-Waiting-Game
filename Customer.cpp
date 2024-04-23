@@ -1,7 +1,7 @@
 #include "Customer.h"
 
 Customer::Customer(int registerTime, int cashierTime, int financialAidTime, char a, char b, char c)
-    : registerTime(registerTime), cashierTime(cashierTime), financialAidTime(financialAidTime), time(0), officeIndex(0) {
+    : registerTime(registerTime), cashierTime(cashierTime), financialAidTime(financialAidTime),officeIndex(0) {
     order[0] = a;
     order[1] = b;
     order[2] = c;
@@ -33,13 +33,7 @@ void Customer::setFinancialAidTime(int time) {
     this->financialAidTime = time;
 }
 
-void Customer::setArrivalTime(int time) {
-    this->time = time;
-}
 
-int Customer::getArrivalTime() const {
-    return time;
-}
 
 char Customer::getCurrentOffice() const {
     return currentOffice;
@@ -48,21 +42,19 @@ char Customer::getCurrentOffice() const {
 void Customer::nextOffice() {
     if (officeIndex < 3) { // Ensure we don't go out of bounds
         currentOffice = order[++officeIndex];
-    } else {
-        // Handle the case when officeIndex is out of bounds
-    }
+    } 
+    notAtOffice();
+
 }
 
-int Customer::getTime() const {
-    return time;
+int Customer::getWindowTime() const {
+    return windowTime;
 }
 
-void Customer::nextTime() {
-    ++time;
-}
 
-void Customer::setTime(int i) {
-    time = i;
+
+void Customer::setWindowTime(int i) {
+    windowTime = i;
 }
 
 void Customer::inOffice() {
@@ -76,3 +68,15 @@ void Customer::notAtOffice() {
 bool Customer::officeStatus() const {
     return atOffice;
 }
+
+bool Customer::windowStatus(){
+    return window;
+}
+void Customer::SetWindowTrue(){
+    window = true;
+}
+void Customer::SetWindowFalse(){
+    window = false;
+}
+
+
