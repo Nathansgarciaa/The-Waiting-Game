@@ -20,18 +20,10 @@ int Customer::getCashierTime() const {
 int Customer::getFinancialAidTime() const {
     return financialAidTime;
 }
-
-void Customer::setRegisterTime(int time) {
-    this->registerTime = time;
+void Customer::printDetails(){
+    std::cout << registerTime << cashierTime << financialAidTime << std::endl;
 }
 
-void Customer::setCashierTime(int time) {
-    this->cashierTime = time;
-}
-
-void Customer::setFinancialAidTime(int time) {
-    this->financialAidTime = time;
-}
 
 
 
@@ -53,8 +45,8 @@ int Customer::getWindowTime() const {
 
 
 
-void Customer::setWindowTime(int i) {
-    windowTime = i;
+void Customer::increaseWindowTime() {
+    windowTime++;
 }
 
 void Customer::inOffice() {
@@ -77,6 +69,15 @@ void Customer::SetWindowTrue(){
 }
 void Customer::SetWindowFalse(){
     window = false;
+}
+void Customer::increaseWaitTime(){
+    waitTime++;
+}
+int Customer::getWaitTime(){
+    return waitTime;
+}
+void Customer::setWaitTime(int i){
+    waitTime = i;
 }
 
 

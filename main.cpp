@@ -1,5 +1,5 @@
 #include <iostream>
-#include "ServiceCenter.cpp"
+#include "ServiceCenter.h"
 
 
 int main(int argc, char** argv) {

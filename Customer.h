@@ -1,5 +1,7 @@
 #ifndef CUSTOMER_H
 #define CUSTOMER_H
+#include <iostream>
+
 
 class Customer {
 public:
@@ -8,25 +10,24 @@ public:
     int getRegisterTime() const;
     int getCashierTime() const;
     int getFinancialAidTime() const;
-    int waitTime;
-    
-
-    void setRegisterTime(int time);
-    void setCashierTime(int time);
-    void setFinancialAidTime(int time);
     void setArrivalTime(int time);
     int getArrivalTime() const;
     char getCurrentOffice() const; // Changed to const
     void nextOffice(); // Changed to camel case
     int getWindowTime() const; // Changed to const
     void nextTime();
-    void setWindowTime(int i);
+    void increaseWindowTime();
     void inOffice(); // Removed colon
     void notAtOffice();
     bool officeStatus() const; // Changed to const
     bool windowStatus();
     void SetWindowTrue();
     void SetWindowFalse();
+    void increaseWaitTime();
+    int getWaitTime();
+    void setWaitTime(int i);
+    void printDetails();
+    
     
 
 private:
@@ -39,6 +40,7 @@ private:
     int officeIndex;
     bool atOffice;
     bool window;
+    int waitTime;
 };
 
 #endif // CUSTOMER_H
