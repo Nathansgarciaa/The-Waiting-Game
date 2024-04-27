@@ -1,27 +1,36 @@
-#ifndef SERVICE_CENTER_H
-#define SERVICE_CENTER_H
+#ifndef SERVICECENTER_H
+#define SERVICECENTER_H
 
-#include <iostream>
 #include <fstream>
-#include <string>
-#include "Office.h"
-#include "ListQueue.h"
-#include "Customer.h"
 #include <sstream>
+#include <iostream>
+#include <limits>
+#include "Office.h"
+
+using namespace std;
 
 class ServiceCenter {
-private:
-    Office* registrar;
-    Office* cashier;
-    Office* financialAid;
-    ListQueue<Customer*> scc; // Queue for all service center customers
-
 public:
     ServiceCenter();
     ~ServiceCenter();
+    int tick;
+    int meanWaitR;
+    int meanWaitC;
+    int meanWaitF;
+    int numStudentsOverTen;
+    int meanWindIdleTimeR;
+    int meanWindIdleTimeC;
+    int meanWindIdleTimeF;
+    int numWindIdleOverFive;
 
-    void processCustomers();
-    void processFile(const std::string& filename);
+    void processFile(string& filename); //reads file and gets data
+    void processDay();  // Simulates a day of operation
+    void printStatistics(); // Outputs the statistics of the day's operations
+    bool gameOver();
+
+    Office* registrar;
+    Office* cashier;
+    Office* financialAid;
 };
 
-#endif // SERVICE_CENTER_H
+#endif // SERVICECENTER_H

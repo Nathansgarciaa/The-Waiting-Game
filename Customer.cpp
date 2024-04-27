@@ -1,83 +1,42 @@
 #include "Customer.h"
 
-Customer::Customer(int registerTime, int cashierTime, int financialAidTime, char a, char b, char c)
-    : registerTime(registerTime), cashierTime(cashierTime), financialAidTime(financialAidTime),officeIndex(0) {
-    order[0] = a;
-    order[1] = b;
-    order[2] = c;
-    currentOffice = order[0];
-    atOffice = false; // Initialize atOffice variable
-}
-
-int Customer::getRegisterTime() const {
-    return registerTime;
-}
-
-int Customer::getCashierTime() const {
-    return cashierTime;
-}
-
-int Customer::getFinancialAidTime() const {
-    return financialAidTime;
-}
-void Customer::printDetails(){
-    std::cout << registerTime << cashierTime << financialAidTime << std::endl;
-}
-
-
-
-
-char Customer::getCurrentOffice() const {
-    return currentOffice;
-}
-
-void Customer::nextOffice() {
-    if (officeIndex < 3) { // Ensure we don't go out of bounds
-        currentOffice = order[++officeIndex];
-    } 
-    notAtOffice();
+Customer::Customer(){
+    arrivalTime = 0;
+    rTime = 0;
+    cTime = 0;
+    faTime = 0;
+    office1 = ' ';
+    office2 = ' ';
+    office3 = ' ';
+    
 
 }
+Customer::Customer(int arrivalTime, int rTime, int cTime, int faTime, char office1, char office2, char office3)
+    : arrivalTime(arrivalTime), rTime(rTime), cTime(cTime), faTime(faTime), office1(office1), office2(office2), office3(office3){}
 
-int Customer::getWindowTime() const {
-    return windowTime;
-}
+Customer::~Customer() {}
 
-
-
-void Customer::increaseWindowTime() {
-    windowTime++;
+int Customer::getArrivalTime() {
+    return arrivalTime;
 }
 
-void Customer::inOffice() {
-    atOffice = true;
+int Customer::getRegistrarTime() {
+    return rTime;
 }
 
-void Customer::notAtOffice() {
-    atOffice = false;
+int Customer::getCashierTime() {
+    return cTime;
 }
 
-bool Customer::officeStatus() const {
-    return atOffice;
+int Customer::getFinancialAidTime() {
+    return faTime;
 }
 
-bool Customer::windowStatus(){
-    return window;
-}
-void Customer::SetWindowTrue(){
-    window = true;
-}
-void Customer::SetWindowFalse(){
-    window = false;
-}
-void Customer::increaseWaitTime(){
-    waitTime++;
-}
-int Customer::getWaitTime(){
-    return waitTime;
-}
-void Customer::setWaitTime(int i){
-    waitTime = i;
+int Customer::getTotalTime() {
+    return totalTime;
 }
 
+void Customer::setTotalTime(int val) {
+    totalTime = val;
+}
 

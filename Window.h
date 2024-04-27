@@ -1,28 +1,24 @@
 #ifndef WINDOW_H
 #define WINDOW_H
 
-#include <iostream>
-#include "ListQueue.h"
-#include "Customer.h"
+#include "Customer.h" // Assuming Customer class handles student details
 
 class Window {
-private:
-    bool occupied = false;
-    Customer* currentCustomer = nullptr;
-    int occupiedTime = 0;
-    int idleTime = 0;
-
 public:
-    Window() = default;
-    ~Window() = default;
+    Window();  // Constructor
+    ~Window(); // Destructor
 
-    void occupy();
-    void releaseCustomer();
-    void checkTime();
-    void setCustomer(Customer* customer);
-    bool isOccupied() const;
+    bool isOccupied(); // Check if the window is currently occupied
+    void occupy(Customer* customer); // Assign a customer to the window
+    void release(); // Release the current customer
+    int getIdleTime() const; // Get the idle time of the window
+    void incrementIdleTime(); // Increment the idle time
+    void processWindow();
 
-    ListQueue<Customer*> waitingQueue;
+private:
+    bool occupied;     // Is the window currently occupied?
+    int idleTime;      // Total time the window has been idle
+    Customer* currentCustomer; // Pointer to the current customer being served
 };
 
 #endif // WINDOW_H
