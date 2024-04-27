@@ -21,6 +21,7 @@ public:
     void checkTime();
     void setCustomer(Customer* customer);
     bool isOccupied() const;
+    int getIdleTime();
 
     ListQueue<Customer*> waitingQueue;
 };

@@ -45,6 +45,7 @@ void Window::checkTime() {
 void Window::setCustomer(Customer* customer) {
     if (!occupied) {
         currentCustomer = customer;
+        customer->setWaitTime(0);
         occupy();
         std::cout << "Customer set at window: Processing time starts." << std::endl;
     }
@@ -63,4 +64,7 @@ void Window::releaseCustomer() {
 
 bool Window::isOccupied() const {
     return occupied;
+}
+int Window::getIdleTime(){
+    return idleTime;
 }

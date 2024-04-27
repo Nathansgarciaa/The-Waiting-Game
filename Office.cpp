@@ -17,20 +17,32 @@ void Office::addCustomer(Customer* customer) {
 
 void Office::updateOffice() {
     int processedCustomers = 0;
-    while (!queue.isEmpty() && processedCustomers < queue.getSize()) {
-        Customer* customer = queue.dequeue();
-        customer->increaseWaitTime();
-        queue.enqueue(customer);
-        processedCustomers++;
-}
+    
 
     for (int i = 0; i < numWindows; ++i) {
         if (!windows[i].isOccupied() && !queue.isEmpty()) {
-            windows[i].occupy();
-            Customer* customer = queue.dequeue();
-            if(customer->getWaitTime() > StudentWaitTime){
-                StudentWaitTime += customer->getWaitTime();
+            totalIdleTime += windows[i].getIdleTime();
+            if(windows[i].getIdleTime() > longestWindowIdleTime){
+                longestWindowIdleTime = windows[i].getIdleTime();
             }
+            if(windows[i].getIdleTime() > 4){
+                numWindowsIdle5mins++;
+            }
+            windows[i].occupy();
+
+            Customer* customer = queue.dequeue();
+            totalCustomers++;
+            
+            StudentWaitTime += customer->getWaitTime();
+            
+            if(customer->getWaitTime() > maxWaitTime){
+                maxWaitTime = customer->getWaitTime();
+            }
+            if(customer->getWaitTime() > 9){
+                numStudents10Mins += 1;
+            }
+           
+
             
             std::cout << "Assigning customer to window " << i << " in " << officeName << std::endl;
 
@@ -39,6 +51,14 @@ void Office::updateOffice() {
         
         windows[i].checkTime();
     }
+    while (!queue.isEmpty() && processedCustomers < queue.getSize()) {
+        Customer* customer = queue.dequeue();
+        customer->increaseWaitTime();
+        std::cout <<"waitTime: "  << customer->getWaitTime() << std::endl;
+        queue.enqueue(customer);
+        processedCustomers++;
+        
+}
 
     while (!nextQueue.isEmpty()) {
         Customer* customer = nextQueue.dequeue();
@@ -48,4 +68,12 @@ void Office::updateOffice() {
 
 double Office::meanWaitTime() const {
     return static_cast<double>(StudentWaitTime) / totalCustomers;
+}
+double Office::getMeanIdleTime(){
+    return totalIdleTime / numWindows;
+
+
+}
+int Office::getLongestWindowIdleTime(){
+    return longestWindowIdleTime;
 }

@@ -16,6 +16,13 @@ public:
     int totalCustomers = 0;
     int StudentWaitTime = 0;
     int maxWaitTime = 0;
+    int numStudents10Mins = 0;
+    int meanIdleTime = 0;
+    int totalIdleTime = 0;
+    int longestWindowIdleTime = 0;
+    int numWindowsIdle5mins = 0;
+
+   
 
     Office(int numberOfWindows, std::string name);
     ~Office();
@@ -23,6 +30,8 @@ public:
     void addCustomer(Customer* customer);
     void updateOffice();
     double meanWaitTime() const;
+    double getMeanIdleTime();
+    int getLongestWindowIdleTime();
 };
 
 #endif // OFFICE_H
