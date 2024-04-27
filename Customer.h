@@ -1,41 +1,46 @@
 #ifndef CUSTOMER_H
 #define CUSTOMER_H
-#include <string>
-using namespace std;
+#include <iostream>
+
 
 class Customer {
-public: 
-    int arrivalTime; // Time at which the customer arrives
-    int rTime;       // Time needed at the registrar office
-    int cTime;       // Time needed at the cashier office
-    int faTime;      // Time needed at the financial aid office
-    int totalTime;   // Total time needed for all services
-    char office1;
-    char office2; 
-    char office3;
+public:
+    Customer(int registerTime, int cashierTime, int financialAidTime, char a, char b, char c);
 
+    int getRegisterTime() const;
+    int getCashierTime() const;
+    int getFinancialAidTime() const;
+    void setArrivalTime(int time);
+    int getArrivalTime() const;
+    char getCurrentOffice() const; // Changed to const
+    void nextOffice(); // Changed to camel case
+    int getWindowTime() const; // Changed to const
+    void nextTime();
+    void increaseWindowTime();
+    void inOffice(); // Removed colon
+    void notAtOffice();
+    bool officeStatus() const; // Changed to const
+    bool windowStatus();
+    void SetWindowTrue();
+    void SetWindowFalse();
+    void increaseWaitTime();
+    int getWaitTime();
+    void setWaitTime(int i);
+    void printDetails();
+    
+    
 
-    Customer();
-    Customer(int arrivalTime, int rTime, int cTime, int faTime, char office1, char office2, char office3);
-    ~Customer();
-
-    int getArrivalTime();
-    int getRegistrarTime();
-    int getCashierTime();
-    int getFinancialAidTime();
-    int getTotalTime();
-    void setTotalTime(int val);
-    void setArrivalTime();
-    void setRegistrarTime(int num){
-        this->rTime = num;
-    };
-    void setCashierTime(int num){
-        this->cTime = num;
-    };
-    void setFinancialAidTime(int num){
-        this->faTime = num;
-    };
-
+private:
+    int registerTime;
+    int cashierTime;
+    int financialAidTime;
+    int windowTime;
+    char order[3];
+    char currentOffice;
+    int officeIndex;
+    bool atOffice;
+    bool window;
+    int waitTime;
 };
 
-#endif
+#endif // CUSTOMER_H

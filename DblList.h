@@ -1,67 +1,68 @@
 #ifndef DBLLIST_H
 #define DBLLIST_H
 
-#include "ListNode.h"
+#include <stdexcept>
 
-template <typename T>
-class DblList {
+template<typename T>
+class ListNode {
 public:
-    DblList();
-    ~DblList();
-    void insertBack(T data);
-    T removeFront();
-    bool isEmpty() const;
-    // Additional functions as needed
+    T data;
+    ListNode<T> *next;
+    ListNode<T> *prev;
 
-private:
-    ListNode<T> *head;
-    ListNode<T> *tail;
-    int size;
+    ListNode(T d) : data(d), next(nullptr), prev(nullptr) {}
 };
 
-template <typename T>
-DblList<T>::DblList() : head(nullptr), tail(nullptr), size(0) {}
+template<typename T>
+class DblList {
+public:
+    ListNode<T>* head;
+    ListNode<T>* tail;
+    unsigned int size;
 
-template <typename T>
-DblList<T>::~DblList() {
-    while (!isEmpty()) {
-        removeFront();
-    }
-}
+    DblList() : head(nullptr), tail(nullptr), size(0) {}
 
-template <typename T>
-void DblList<T>::insertBack(T data) {
-    ListNode<T>* newNode = new ListNode<T>(data);
-    if (isEmpty()) {
-        head = newNode;
-    } else {
-        tail->next = newNode;
-        newNode->prev = tail;
-    }
-    tail = newNode;
-    size++;
-}
-
-template <typename T>
-T DblList<T>::removeFront() {
-    ListNode<T>* temp = head;
-    T data = head->data;
-    head = head->next;
-    if (head == nullptr) {
+    ~DblList() {
+        while (head != nullptr) {
+            ListNode<T>* temp = head;
+            head = head->next;
+            delete temp;
+        }
         tail = nullptr;
-    } else {
-        head->prev = nullptr;
     }
-    delete temp;
-    size--;
-    return data;
-}
 
-template <typename T>
-bool DblList<T>::isEmpty() const {
-    return size == 0;
-}
+    void insertFront(T d) {
+        ListNode<T>* newNode = new ListNode<T>(d);
+        if (isEmpty()) {
+            head = tail = newNode;
+        } else {
+            newNode->next = head;
+            head->prev = newNode;
+            head = newNode;
+        }
+        size++;
+    }
 
+    T removeFront() {
+        if (isEmpty()) {
+            throw std::runtime_error("List is empty");
+        }
+        ListNode<T>* temp = head;
+        T data = temp->data;
+        head = head->next;
+        if (head == nullptr) {
+            tail = nullptr;
+        } else {
+            head->prev = nullptr;
+        }
+        delete temp;
+        size--;
+        return data;
+    }
 
+    bool isEmpty() const {
+        return size == 0;
+    }
+};
 
 #endif // DBLLIST_H

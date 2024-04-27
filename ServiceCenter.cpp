@@ -1,177 +1,103 @@
 #include "ServiceCenter.h"
 
 
-ServiceCenter::ServiceCenter(){
-    Office* registrar = new Office(0);
-    Office* cashier = new Office(0);
-    Office* financialAid = new Office(0);
-    tick=0;
-    meanWaitR=0;
-    meanWaitC=0;
-    meanWaitF=0;
-    numStudentsOverTen=0;
-    meanWindIdleTimeR=0;
-    meanWindIdleTimeC=0;
-    meanWindIdleTimeF=0;
-    numWindIdleOverFive=0;
-};
-ServiceCenter::~ServiceCenter(){
-    delete registrar;
-    delete cashier;
-    delete financialAid;
-};
+ServiceCenter::ServiceCenter() : registrar(nullptr), cashier(nullptr), financialAid(nullptr) {}
 
-void ServiceCenter::processFile(string& filename) {
-    fstream file(filename);  // Use the passed filename instead of hard-coding it
-    if (!file.is_open()) {
-        cerr << "Failed to open file." << endl;
+ServiceCenter::~ServiceCenter() {
+    if (registrar)
+        delete registrar;
+    if (cashier)
+        delete cashier;
+    if (financialAid)
+        delete financialAid;
+}
+
+void ServiceCenter::processCustomers() {
+    while (!scc.isEmpty()) {
+        Customer* customer = scc.dequeue();
+
+        char direction = customer->getCurrentOffice();
+        switch (direction) {
+            case 'R':
+                registrar->addCustomer(customer);
+                break;
+            case 'C':
+                cashier->addCustomer(customer);
+                break;
+            case 'F':
+                financialAid->addCustomer(customer);
+                break;
+        }
+
+        registrar->updateOffice();
+        cashier->updateOffice();
+        financialAid->updateOffice();
+        std::cout << "Processed customer for office: " << direction << std::endl; // Debug output
     }
-    int numRegWindows, numCashWindows, numFinAidWindows, time, numStudents;
+}
+
+void ServiceCenter::processFile(const std::string& filename) {
+    std::ifstream file(filename);
+    if (!file) {
+        std::cerr << "Cannot open file: " << filename << std::endl;
+        return;
+    }
+
+    int numRegWindows, numCashWindows, numFinAidWindows;
     file >> numRegWindows >> numCashWindows >> numFinAidWindows;
-    registrar = new Office(numRegWindows);
-    cashier = new Office(numCashWindows);
-    financialAid = new Office(numFinAidWindows);
 
-    file >> time >> numStudents;
-    tick = time;
-    
-    int time1, time2, time3;
-    char office1, office2, office3;
-    file >> time1 >> time2 >> time3 >> office1 >> office2 >> office3;
-    int registrarTime = 0, cashierTime = 0, financialAidTime = 0;
+    registrar = new Office(numRegWindows, "Registrar");
+    cashier = new Office(numCashWindows, "Cashier");
+    financialAid = new Office(numFinAidWindows, "Financial Aid");
 
-    if (office1 == 'R') registrarTime = time1;
-    else if (office1 == 'C') cashierTime = time1;
-    else if (office1 == 'F') financialAidTime = time1;
+    // Assume maximum number of ticks you will handle
+    const int MAX_TICKS = 100;
+    Customer*** customersAtTicks = new Customer**[MAX_TICKS + 1];
+    int* countsAtTicks = new int[MAX_TICKS + 1](); // Initialize to zero
 
-    if (office2 == 'R') registrarTime = time2;
-    else if (office2 == 'C') cashierTime = time2;
-    else if (office2 == 'F') financialAidTime = time2;
-
-    if (office3 == 'R') registrarTime = time3;
-    else if (office3 == 'C') cashierTime = time3;
-    else if (office3 == 'F') financialAidTime = time3;
-
-    Customer* student = new Customer(time, registrarTime, cashierTime, financialAidTime, office1, office2, office3);
-    registrar->addCustomer(student);
-    cashier->addCustomer(student);
-    financialAid->addCustomer(student);
-
-    
-    file >> time1 >> time2 >> time3 >> office1 >> office2 >> office3;
-    if (office1 == 'R') registrarTime = time1;
-    else if (office1 == 'C') cashierTime = time1;
-    else if (office1 == 'F') financialAidTime = time1;
-
-    if (office2 == 'R') registrarTime = time2;
-    else if (office2 == 'C') cashierTime = time2;
-    else if (office2 == 'F') financialAidTime = time2;
-
-    if (office3 == 'R') registrarTime = time3;
-    else if (office3 == 'C') cashierTime = time3;
-    else if (office3 == 'F') financialAidTime = time3;
-
-    Customer* student1 = new Customer(time, registrarTime, cashierTime, financialAidTime, office1, office2, office3);
-    registrar->addCustomer(student1);
-    cashier->addCustomer(student1);
-    financialAid->addCustomer(student1);
-
-    file >> time1 >> time2 >> time3 >> office1 >> office2 >> office3;
-    if (office1 == 'R') registrarTime = time1;
-    else if (office1 == 'C') cashierTime = time1;
-    else if (office1 == 'F') financialAidTime = time1;
-
-    if (office2 == 'R') registrarTime = time2;
-    else if (office2 == 'C') cashierTime = time2;
-    else if (office2 == 'F') financialAidTime = time2;
-
-    if (office3 == 'R') registrarTime = time3;
-    else if (office3 == 'C') cashierTime = time3;
-    else if (office3 == 'F') financialAidTime = time3;
-
-    Customer* student2 = new Customer(time, registrarTime, cashierTime, financialAidTime, office1, office2, office3);
-    registrar->addCustomer(student2);
-    cashier->addCustomer(student2);
-    financialAid->addCustomer(student2);
-
-    
-
-
-    file.close();  // Close the file
-}
-
-
-void ServiceCenter::printStatistics() {
-    registrar->printInfo();
-}
-bool ServiceCenter::gameOver(){
-    if(registrar->isEmpty() && cashier->isEmpty() && financialAid->isEmpty()){
-        return true;
-    }else {
-        return false;
+    int tick, numStudents;
+    while (file >> tick >> numStudents && tick <= MAX_TICKS) {
+        customersAtTicks[tick] = new Customer*[numStudents];
+        countsAtTicks[tick] = numStudents;
+        for (int i = 0; i < numStudents; ++i) {
+            int regTime, cashTime, finAidTime;
+            char order[3];
+            if (file >> regTime >> cashTime >> finAidTime >> order[0] >> order[1] >> order[2]) {
+                customersAtTicks[tick][i] = new Customer(regTime, cashTime, finAidTime, order[0], order[1], order[2]);
+            } else {
+                std::cerr << "Error reading student details." << std::endl;
+                break;
+            }
+        }
     }
-}
 
+    file.close();
 
-void ServiceCenter::processDay() {
-    string filename = "input.txt";
-    processFile(filename);
-    
-    bool gameOver = false;
-    while(!gameOver){
-
-        //REGISTRAR
-        if(registrar->isWindowAvailable()){
-            registrar->setCurrCustomer(registrar->dequeue());
-            registrar->assignCustomerToWindow();
-            cout << "R Assigned: " << registrar->getCurrCustomer()->getRegistrarTime() << ", " << registrar->getCurrCustomer()->getCashierTime() << ", " << registrar->getCurrCustomer()->getFinancialAidTime() << endl;
-        }else{
-            registrar->getCurrCustomer()->setRegistrarTime((registrar->getCurrCustomer()->getRegistrarTime()) - 1);
-            cout << "R new time: " << registrar->getCurrCustomer()->getRegistrarTime() << endl;
-            if(registrar->getCurrCustomer()->getRegistrarTime() == 0 && !registrar->isEmpty()){
-                registrar->finished(0);
-                registrar->setCurrCustomer(registrar->dequeue());
-                registrar->assignCustomerToWindow();
-                cout << "R Assigned: " << registrar->getCurrCustomer()->getRegistrarTime() << ", " << registrar->getCurrCustomer()->getCashierTime() << ", " << registrar->getCurrCustomer()->getFinancialAidTime() << endl;
+    // Processing each tick
+    for (int currentTick = 1; currentTick <= MAX_TICKS; currentTick++) {
+        std::cout << "Processing tick: " << currentTick << std::endl;
+        if (countsAtTicks[currentTick] > 0) {
+            for (int i = 0; i < countsAtTicks[currentTick]; ++i) {
+                scc.enqueue(customersAtTicks[currentTick][i]);
             }
         }
-
-        //CASHIER
-        if(cashier->isWindowAvailable()){
-            cashier->setCurrCustomer(cashier->dequeue());
-            cashier->assignCustomerToWindow();
-            cout << "C Assigned: " << cashier->getCurrCustomer()->getRegistrarTime() << ", " << cashier->getCurrCustomer()->getCashierTime() << ", " << cashier->getCurrCustomer()->getFinancialAidTime() << endl;
-        }else{
-            cashier->getCurrCustomer()->setCashierTime((cashier->getCurrCustomer()->getCashierTime()) - 1);
-            cout << "C new time: " << cashier->getCurrCustomer()->getCashierTime() << endl;
-            if(cashier->getCurrCustomer()->getCashierTime() == 0 && !cashier->isEmpty()){
-                cashier->finished(0);
-                cashier->setCurrCustomer(cashier->dequeue());
-                cashier->assignCustomerToWindow();
-                cout << "C Assigned: " << cashier->getCurrCustomer()->getRegistrarTime() << ", " << cashier->getCurrCustomer()->getCashierTime() << ", " << cashier->getCurrCustomer()->getFinancialAidTime() << endl;
-            }
-        }
-
-        //FINAID
-        if(financialAid->isWindowAvailable()){
-            financialAid->setCurrCustomer(financialAid->dequeue());
-            financialAid->assignCustomerToWindow();
-            cout << "F Assigned: " << financialAid->getCurrCustomer()->getRegistrarTime() << ", " << financialAid->getCurrCustomer()->getCashierTime() << ", " << financialAid->getCurrCustomer()->getFinancialAidTime() << endl;
-        }else{
-            financialAid->getCurrCustomer()->setFinancialAidTime((financialAid->getCurrCustomer()->getFinancialAidTime()) - 1);
-            cout << "F new time: " << financialAid->getCurrCustomer()->getFinancialAidTime() << endl;
-            if(financialAid->getCurrCustomer()->getFinancialAidTime() == 0 && !financialAid->isEmpty()){
-                financialAid->finished(0);
-                financialAid->setCurrCustomer(financialAid->dequeue());
-                financialAid->assignCustomerToWindow();
-                cout << "F Assigned: " << financialAid->getCurrCustomer()->getRegistrarTime() << ", " << financialAid->getCurrCustomer()->getCashierTime() << ", " << financialAid->getCurrCustomer()->getFinancialAidTime() << endl;
-            }
-        }
-        if(registrar->isEmpty() && cashier->isEmpty() && financialAid->isEmpty() && registrar->getCurrCustomer()->getRegistrarTime() == 0 && cashier->getCurrCustomer()->getCashierTime() == 0 && financialAid->getCurrCustomer()->getFinancialAidTime() == 0){
-                gameOver = true;
-            }
+        processCustomers(); // Process all customers
     }
+
+    std::cout << "Mean wait times after 100 ticks:\n";
+    std::cout << "Registrar: " << registrar->meanWaitTime() << std::endl;
+    std::cout << "Cashier: " << cashier->meanWaitTime() << std::endl;
+    std::cout << "Financial Aid: " << financialAid->meanWaitTime() << std::endl;
+
+    // Cleanup dynamically allocated memory
+    for (int i = 1; i <= MAX_TICKS; i++) {
+        if (countsAtTicks[i] > 0) {
+            for (int j = 0; j < countsAtTicks[i]; ++j) {
+                delete customersAtTicks[i][j];
+            }
+            delete[] customersAtTicks[i];
+        }
+    }
+    delete[] customersAtTicks;
+    delete[] countsAtTicks;
 }
-
-
-

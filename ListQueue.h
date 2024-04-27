@@ -3,41 +3,35 @@
 
 #include "DblList.h"
 
-template <typename T>
+template<typename T>
 class ListQueue {
-public:
-    ListQueue();
-    ~ListQueue(); // You might want to manage memory cleanup if needed
-    void enqueue(T data);
-    T dequeue();
-    bool isEmpty() const;
-
 private:
     DblList<T> list;
+
+public:
+    ListQueue() : list() { 
+        // Constructor body, if needed.
+        // The initialization list 'list()' calls the default constructor of DblList.
+    }
+
+    void enqueue(T d) {
+        list.insertFront(d);
+    }
+
+    T dequeue() {
+        if (list.isEmpty()) {
+            throw std::runtime_error("Queue is empty");
+        }
+        return list.removeFront();
+    }
+
+    bool isEmpty() const {
+        return list.isEmpty();
+    }
+
+    unsigned int getSize() const {
+        return list.size;
+    }
 };
-
-template <typename T>
-ListQueue<T>::ListQueue() {
-}
-
-template <typename T>
-ListQueue<T>::~ListQueue() {
-    // Clean up resources if necessary
-}
-
-template <typename T>
-void ListQueue<T>::enqueue(T data) {
-    list.insertBack(data);
-}
-
-template <typename T>
-T ListQueue<T>::dequeue() {
-    return list.removeFront();
-}
-
-template <typename T>
-bool ListQueue<T>::isEmpty() const {
-    return list.isEmpty();
-}
 
 #endif // LISTQUEUE_H
